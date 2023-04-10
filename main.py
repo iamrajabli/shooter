@@ -5,7 +5,7 @@ import pygame
 
 pygame.init()
 
-game_font = pygame.font.Font(None, 100)
+game_font = pygame.font.Font(None, 50)
 
 pygame.display.set_caption("Awesome Shooter Game")
 
@@ -29,9 +29,11 @@ alien_image = pygame.image.load("images/alien.png")
 alien_width, alien_height = alien_image.get_size()
 alien_x, alien_y = random.randint(0, screen_width - alien_width), 0
 alien_was_fired = False
-ALIEN_STEP = 0.2
+ALIEN_STEP = 0.1
+alien_speed = ALIEN_STEP
 
 game_is_running = True
+game_score = 0
 
 while game_is_running:
     for event in pygame.event.get():
@@ -62,7 +64,7 @@ while game_is_running:
     if ball_was_fired and ball_y + ball_height < 0:
         ball_was_fired = False
 
-    alien_y += ALIEN_STEP
+    alien_y += alien_speed
 
     screen.fill(screen_fill_color)
     screen.blit(fighter_image, (fighter_x, fighter_y))
@@ -72,16 +74,27 @@ while game_is_running:
         ball_y -= BALL_STEP
         screen.blit(ball_image, (ball_x, ball_y))
 
+    game_score_text = game_font.render(f"Your Score is: {game_score}", True, 'white')
+    screen.blit(game_score_text, (20, 20))
+
+    pygame.display.update()
+
     if alien_y + alien_height > fighter_y:
         game_is_running = False
 
-    pygame.display.update()
+    if ball_was_fired and \
+            alien_x < ball_x < alien_x + alien_width - ball_width and \
+            alien_y < ball_y < alien_y + alien_height - ball_height:
+        ball_was_fired = False
+        alien_x, alien_y = random.randint(0, screen_width - alien_width), 0
+        alien_speed += ALIEN_STEP / 10
+        game_score += 1
 
 game_over_text = game_font.render("Game Over", True, 'white')
 game_over_rectangle = game_over_text.get_rect()
 game_over_rectangle.center = (screen_width / 2, screen_height / 2)
 screen.blit(game_over_text, game_over_rectangle)
 pygame.display.update()
-pygame.time.wait(5000)
+pygame.time.wait(1000)
 
 pygame.quit()
