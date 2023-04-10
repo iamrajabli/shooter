@@ -1,8 +1,11 @@
+import random
 import sys
 
 import pygame
 
 pygame.init()
+
+game_font = pygame.font.Font(None, 100)
 
 pygame.display.set_caption("Awesome Shooter Game")
 
@@ -20,9 +23,17 @@ ball_image = pygame.image.load("images/ball.png")
 ball_width, ball_height = ball_image.get_size()
 ball_x, ball_y = 0, 0
 ball_was_fired = False
-BALL_STEP = 2
+BALL_STEP = 0.5
 
-while True:
+alien_image = pygame.image.load("images/alien.png")
+alien_width, alien_height = alien_image.get_size()
+alien_x, alien_y = random.randint(0, screen_width - alien_width), 0
+alien_was_fired = False
+ALIEN_STEP = 0.2
+
+game_is_running = True
+
+while game_is_running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -51,11 +62,26 @@ while True:
     if ball_was_fired and ball_y + ball_height < 0:
         ball_was_fired = False
 
+    alien_y += ALIEN_STEP
+
     screen.fill(screen_fill_color)
     screen.blit(fighter_image, (fighter_x, fighter_y))
+    screen.blit(alien_image, (alien_x, alien_y))
 
     if ball_was_fired:
         ball_y -= BALL_STEP
         screen.blit(ball_image, (ball_x, ball_y))
 
+    if alien_y + alien_height > fighter_y:
+        game_is_running = False
+
     pygame.display.update()
+
+game_over_text = game_font.render("Game Over", True, 'white')
+game_over_rectangle = game_over_text.get_rect()
+game_over_rectangle.center = (screen_width / 2, screen_height / 2)
+screen.blit(game_over_text, game_over_rectangle)
+pygame.display.update()
+pygame.time.wait(5000)
+
+pygame.quit()
